@@ -1,4 +1,6 @@
-﻿namespace Telerik.RazorConverter.Razor.Converters
+﻿using Telerik.RazorConverter.Razor.CodeConverters;
+
+namespace Telerik.RazorConverter.Razor.Converters
 {
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
@@ -7,7 +9,9 @@
 
     public class CodeBlockConverter : INodeConverter<IRazorNode>
     {
-        private IRazorCodeNodeFactory CodeNodeFactory
+	    private ICodeConverter[] _converters;
+
+	    private IRazorCodeNodeFactory CodeNodeFactory
         {
             get;
             set;
@@ -16,6 +20,7 @@
         public CodeBlockConverter(IRazorCodeNodeFactory nodeFactory)
         {
             CodeNodeFactory = nodeFactory;
+	        _converters = CodeCOnverters.converters;
         }
 
         public IList<IRazorNode> ConvertNode(IWebFormsNode node)
@@ -28,6 +33,11 @@
             var requiresBlock = false;
 
             var code = srcNode.Code;
+	        foreach (var codeConverter in _converters)
+	        {
+		        code = codeConverter.ConvertCodeBlock(code);
+	        }
+
             code = ReplaceRenderPartial(code);
 
             if (code.TrimStart().StartsWith("@"))

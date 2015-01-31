@@ -29,13 +29,13 @@
                 if (directiveNode.Attributes.ContainsKey("inherits"))
                 {
                     var inheritsFrom = directiveNode.Attributes["inherits"];
-                    var viewPageGenericType = new Regex("System.Web.Mvc.(?:ViewPage|ViewUserControl)<(?<type>.*)>");
+					var viewPageGenericType = new Regex("(?:Ohio.Web.Config.Rendering.SubView|Ohio.Web.UI.Fusion.FusionView|SubView)<(?<type>.*)>");
                     var typeMatch = viewPageGenericType.Match(inheritsFrom);
                     if (typeMatch.Success)
                     {
                         result.Add(DirectiveNodeFactory.CreateDirectiveNode("model", typeMatch.Result("${type}")));
                     }
-                    else if (inheritsFrom != "System.Web.Mvc.ViewPage" && inheritsFrom != "System.Web.Mvc.ViewUserControl")
+					else if (inheritsFrom != "Ohio.Web.Config.Rendering.SubView" && inheritsFrom != "Ohio.Web.UI.Fusion.FusionView")
                     {
                         result.Add(DirectiveNodeFactory.CreateDirectiveNode("inherits", directiveNode.Attributes["inherits"]));
                     }

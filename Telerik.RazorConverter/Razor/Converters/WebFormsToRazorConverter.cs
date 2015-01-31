@@ -1,4 +1,6 @@
-﻿namespace Telerik.RazorConverter.Razor.Converters
+﻿using System.Diagnostics;
+
+namespace Telerik.RazorConverter.Razor.Converters
 {
     using System.ComponentModel.Composition;
     using Telerik.RazorConverter.Razor.DOM;
@@ -21,7 +23,13 @@
 
         public IDocument<IRazorNode> Convert(IDocument<IWebFormsNode> srcDoc)
         {
+	   
             var rootNode = new RazorNode();
+
+	        rootNode.Children.Add(new RazorDirectiveNode("using", "Ohio.Web.Config.X.Infrastructure"));
+			rootNode.Children.Add(new RazorTextNode("\r\n"));
+	        rootNode.Children.Add(new RazorDirectiveNode("using", "Ohio.Web.UI.Views.X"));
+			rootNode.Children.Add(new RazorTextNode("\r\n"));
 
             foreach (var srcNode in srcDoc.RootNode.Children)
             {
@@ -41,7 +49,7 @@
                     }
                 }
             }
-
+			
             return new Document<IRazorNode>(rootNode);
         }
     }

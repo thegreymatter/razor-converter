@@ -1,4 +1,7 @@
-﻿namespace Telerik.RazorConverter.Razor.Converters
+﻿using System.Collections;
+using Telerik.RazorConverter.Razor.CodeConverters;
+
+namespace Telerik.RazorConverter.Razor.Converters
 {
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
@@ -7,7 +10,9 @@
 
     public class ExpressionBlockConverter : INodeConverter<IRazorNode>
     {
-        private IRazorExpressionNodeFactory ExpressionNodeFactory
+	    private IEnumerable<ICodeConverter> _converters;
+
+	    private IRazorExpressionNodeFactory ExpressionNodeFactory
         {
             get;
             set;
@@ -15,6 +20,7 @@
 
         public ExpressionBlockConverter(IRazorExpressionNodeFactory nodeFactory)
         {
+	        _converters = CodeCOnverters.converters;
             ExpressionNodeFactory = nodeFactory;
         }
 
@@ -26,6 +32,10 @@
             expression = expression.Replace("ResolveUrl", "Url.Content");
             expression = RemoveHtmlEncode(expression);
             expression = WrapHtmlDecode(expression);
+			foreach (var codeConverter in _converters)
+			{
+				expression = codeConverter.ConvertCodeBlock(expression);
+			}
             return new IRazorNode[] 
             {
                 ExpressionNodeFactory.CreateExpressionNode(expression, isMultiline)

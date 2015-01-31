@@ -1,4 +1,6 @@
-﻿namespace aspx2razor
+﻿using System.Collections.Generic;
+
+namespace aspx2razor
 {
     using System;
     using System.ComponentModel.Composition;
@@ -57,25 +59,43 @@
 
             var outputDirectory = (args.Length >= 2 && !args[1].StartsWith("-")) ? args[1] : "";
             var directoryHandler = new DirectoryHandler(args[0], outputDirectory);
-
+	        var Errors = new List<string>();
             var recursive = args.Contains("-r", StringComparer.InvariantCultureIgnoreCase);
             var files = directoryHandler.GetFiles(recursive);
             foreach (var file in files)
             {
-                Console.WriteLine("Converting {0}", file);
-                
-                var webFormsPageSource = File.ReadAllText(file, Encoding.UTF8);
-                var webFormsDocument = Parser.Parse(webFormsPageSource);
-                var razorDom = Converter.Convert(webFormsDocument);
-                var razorPage = Renderer.Render(razorDom);
+	            try
+	            {
+		            Console.WriteLine("Converting {0}", file);
 
-                var outputFileName = ReplaceExtension(directoryHandler.GetOutputFileName(file), ".cshtml");
-                Console.WriteLine("Writing    {0}", outputFileName);
-                EnsureDirectory(Path.GetDirectoryName(outputFileName));
-                File.WriteAllText(outputFileName, razorPage, Encoding.UTF8);
+		            var webFormsPageSource = File.ReadAllText(file, Encoding.UTF8);
+		            var webFormsDocument = Parser.Parse(webFormsPageSource);
+		            var razorDom = Converter.Convert(webFormsDocument);
+		            var razorPage = Renderer.Render(razorDom);
 
-                Console.WriteLine("Done\n");
+		            var outputFileName = ReplaceExtension(directoryHandler.GetOutputFileName(file), ".cshtml");
+		            Console.WriteLine("Writing    {0}", outputFileName);
+		            EnsureDirectory(Path.GetDirectoryName(outputFileName));
+		            File.WriteAllText(outputFileName, razorPage, Encoding.UTF8);
+
+		            Console.WriteLine("Done\n");
+	            }
+	            catch (Exception e)
+	            {
+		            Console.ForegroundColor= ConsoleColor.Red;
+		            Console.WriteLine(e);
+					Console.ForegroundColor = ConsoleColor.White;
+					Errors.Add(file+":"+e.Message);
+					
+	            }
             }
+
+	        foreach (var error in Errors)
+	        {
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine(error);
+				Console.ForegroundColor = ConsoleColor.White;
+	        }
 
             var elapsed = stopwatch.Elapsed;
             Console.WriteLine();

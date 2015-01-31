@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Razor\CodeConverters\FeatureControlConverter.cs" />
     <Compile Include="Razor\Converters\CodeGroupConverter.cs" />
     <Compile Include="Razor\Converters\ContentTagConverterConfiguration.cs" />
     <Compile Include="Razor\Converters\CommentNodeConverter.cs" />
