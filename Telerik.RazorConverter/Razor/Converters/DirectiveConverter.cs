@@ -1,4 +1,7 @@
-﻿namespace Telerik.RazorConverter.Razor.Converters
+﻿using System;
+using System.Diagnostics;
+
+namespace Telerik.RazorConverter.Razor.Converters
 {
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
@@ -26,8 +29,13 @@
 
             if (directiveNode != null)
             {
+
+
                 if (directiveNode.Attributes.ContainsKey("inherits"))
                 {
+				//	var MasterPageFile = 
+
+
                     var inheritsFrom = directiveNode.Attributes["inherits"];
 					var viewPageGenericType = new Regex("(?:Ohio.Web.Config.Rendering.SubView|Ohio.Web.UI.Fusion.FusionView|SubView)<(?<type>.*)>");
                     var typeMatch = viewPageGenericType.Match(inheritsFrom);
@@ -51,6 +59,18 @@
                         result.Add(DirectiveNodeFactory.CreateDirectiveNode("using", directiveNode.Attributes["namespace"]));
                     }
                 }
+
+				if (directiveNode.Attributes.ContainsKey("masterpagefile"))
+				{
+
+					var inheritsFrom = directiveNode.Attributes["masterpagefile"];
+
+					if (inheritsFrom.Contains("~/Fusion/Common/Master.master"))
+						result.Add(new RazorTextNode(Environment.NewLine+"@{Layout=\"~/Fusion/X/Master.cshtml\";}"));
+					
+					
+
+				}
             }
 
             return result;
