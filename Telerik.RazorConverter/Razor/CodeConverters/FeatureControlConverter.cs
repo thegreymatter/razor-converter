@@ -15,7 +15,7 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 			new JSResouceCOnverter(), new SubviewRenderConverter(),
 			new ViewComponenetConverter(),new RoutesContextConverter(), 
 			new MasterPageContextConverter(), new RenderScriptsAndCSSConverter(),
-			new RoutesRenderConverter(), new DomainsConverter(), 
+			new RoutesRenderConverter(), new DomainsConverter(), new RenderConverter(), 
 		};
 	}
 
@@ -63,13 +63,31 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 	{
 		public string ConvertCodeBlock(string codeBlock)
 		{
-			var result =
-			 Regex.Replace(codeBlock, @"SubviewRenderer\.Render", "SubviewRenderer.Render");
-			return Regex.Replace(result, @"[^.\w]Render\(", "@Html.Render(");
+			var searchRegex = new Regex(@"SubviewRenderer.Render\((?<page>.*?)\);", RegexOptions.Singleline | RegexOptions.Multiline);
+			var tt=  searchRegex.Replace(codeBlock, m =>
+			{
+				var t =  string.Format("Html.Render({0})", m.Groups["page"].Value.Trim());
+				return t;
+			});
+
+			return tt;
 		}
 	}
 
+	public class RenderConverter : ICodeConverter
+	{
+		public string ConvertCodeBlock(string codeBlock)
+		{
+			var searchRegex = new Regex(@"Render\((?<page>.*?)\);", RegexOptions.Singleline | RegexOptions.Multiline);
+			var tt = searchRegex.Replace(codeBlock, m =>
+			{
+				var t = string.Format("Html.Render({0})", m.Groups["page"].Value.Trim());
+				return t;
+			});
 
+			return tt;
+		}
+	}
 
 	public class RoutesRenderConverter : ICodeConverter
 	{
