@@ -20,7 +20,12 @@
         {
             var sectionNode = node as IRazorSectionNode;
             var childContent = RenderChildren(node);
-            return string.Format("@section {0} {{\r\n{1}}}", sectionNode.Name, childContent);
+	        if (sectionNode.Name != "Body")
+		        return string.Format("@section {0} {{\r\n{1}}}", sectionNode.Name, childContent);
+	        else
+	        {
+		        return childContent;
+	        }
         }
 
         private string RenderChildren(IRazorNode node)

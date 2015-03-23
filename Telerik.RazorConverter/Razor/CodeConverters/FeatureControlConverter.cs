@@ -65,7 +65,7 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 		{
 			var result =
 			 Regex.Replace(codeBlock, @"SubviewRenderer\.Render", "SubviewRenderer.Render");
-			return Regex.Replace(result, @"[^.\w]Render\(", "Html.Render(");
+			return Regex.Replace(result, @"[^.\w]Render\(", "@Html.Render(");
 		}
 	}
 
@@ -109,7 +109,7 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 	{
 		public string ConvertCodeBlock(string codeBlock)
 		{
-			return Regex.Replace(codeBlock, "Require\\.Css\\(\"(\\S*)\"\\);", "Html.Resource(x => x.Css(\"$1\");");
+			return Regex.Replace(codeBlock, "Require\\.Css\\(\"(\\S*)\"\\);", "Html.Resource(x => x.Css(\"$1\"));");
 		}
 	}
 
