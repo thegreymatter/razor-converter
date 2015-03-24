@@ -12,8 +12,8 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 		public static ICodeConverter[] Converters =
 		{
 			new CssResouceCOnverter(), new FeatureControlConverter(),
-			new JSResouceCOnverter(), new SubviewRenderConverter(),
-			new ViewComponenetConverter(),new RoutesContextConverter(), 
+			new JSResouceCOnverter(),new ViewComponenetConverter(),
+			new RoutesContextConverter(), 
 			new MasterPageContextConverter(), new RenderScriptsAndCSSConverter(),
 			new RoutesRenderConverter(), new DomainsConverter(), new RenderConverter(), 
 		};
@@ -31,8 +31,6 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 			new RenderConverter(true), 
 		};
 	}
-
-
 
 	public class MasterPageContextConverter : ICodeConverter
 	{
@@ -73,17 +71,10 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 
 	public class SubviewRenderConverter : ICodeConverter
 	{
-		private readonly bool _isCodeBlock;
-
-		public SubviewRenderConverter(bool isCodeBlock = false)
-		{
-			_isCodeBlock = isCodeBlock;
-		}
-
 		public string ConvertCodeBlock(string codeBlock)
 		{
-			var searchRegex = new Regex(@"SubviewRenderer.Render\((?<page>.*?)\);", RegexOptions.Singleline | RegexOptions.Multiline);
-			var result =  searchRegex.Replace(codeBlock, m => string.Format("Html.Render({0})".AddAtPrefix(_isCodeBlock), m.Groups["page"].Value.Trim()));
+			var searchRegex = new Regex(@"[^.\w]SubviewRenderer.Render\((?<page>.*?)\);?", RegexOptions.Singleline | RegexOptions.Multiline);
+			var result =  searchRegex.Replace(codeBlock, m => string.Format("Html.Render({0});", m.Groups["page"].Value.Trim()));
 
 			return result;
 		}
@@ -100,7 +91,7 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 
 		public string ConvertCodeBlock(string codeBlock)
 		{
-			var searchRegex = new Regex(@"Render\((?<page>.*?)\);", RegexOptions.Singleline | RegexOptions.Multiline);
+			var searchRegex = new Regex(@"[^.\w]Render\((?<page>.*?)\);?", RegexOptions.Singleline | RegexOptions.Multiline);
 			var result = searchRegex.Replace(codeBlock, m => string.Format("Html.Render({0})".AddAtPrefix(_isCodeBlock), m.Groups["page"].Value.Trim()));
 			return result;
 		}
