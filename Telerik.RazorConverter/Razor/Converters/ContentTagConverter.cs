@@ -70,7 +70,15 @@
         public bool CanConvertNode(IWebFormsNode node)
         {
             var serverControlNode = node as IWebFormsServerControlNode;
-            return serverControlNode != null && serverControlNode.TagName.ToLowerInvariant() == "asp:content";
+
+	        if (serverControlNode == null)
+		        return false;
+
+			//|| serverControlNode.TagName.ToLowerInvariant() == "asp:contentplaceholder"
+
+			var z = serverControlNode.TagName.ToLowerInvariant() == "asp:content";
+
+	        return z;
         }
     }
 }

@@ -7,15 +7,28 @@ using System.Text.RegularExpressions;
 namespace Telerik.RazorConverter.Razor.CodeConverters
 {
 
-	public static class CodeCOnverters
+	public static class ExpressionCodeConverters
 	{
-		public static ICodeConverter[] converters =
+		public static ICodeConverter[] Converters =
 		{
 			new CssResouceCOnverter(), new FeatureControlConverter(),
 			new JSResouceCOnverter(), new SubviewRenderConverter(),
 			new ViewComponenetConverter(),new RoutesContextConverter(), 
 			new MasterPageContextConverter(), new RenderScriptsAndCSSConverter(),
 			new RoutesRenderConverter(), new DomainsConverter(), new RenderConverter(), 
+		};
+	}
+
+	public static class CodeBlockCodeConvertors
+	{
+		public static ICodeConverter[] Converters =
+		{
+			new CssResouceCOnverter(), new FeatureControlConverter(),
+			new JSResouceCOnverter(), new SubviewRenderConverter(),
+			new ViewComponenetConverter(),new RoutesContextConverter(), 
+			new MasterPageContextConverter(), new RenderScriptsAndCSSConverter(),
+			new RoutesRenderConverter(), new DomainsConverter(),
+			new RenderConverter(true), 
 		};
 	}
 
@@ -61,31 +74,36 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 
 	public class SubviewRenderConverter : ICodeConverter
 	{
+		private readonly bool _isCodeBlock;
+
+		public SubviewRenderConverter(bool isCodeBlock = false)
+		{
+			_isCodeBlock = isCodeBlock;
+		}
+
 		public string ConvertCodeBlock(string codeBlock)
 		{
 			var searchRegex = new Regex(@"SubviewRenderer.Render\((?<page>.*?)\);", RegexOptions.Singleline | RegexOptions.Multiline);
-			var tt=  searchRegex.Replace(codeBlock, m =>
-			{
-				var t =  string.Format("Html.Render({0})", m.Groups["page"].Value.Trim());
-				return t;
-			});
+			var result =  searchRegex.Replace(codeBlock, m => string.Format("Html.Render({0})".AddAtPrefix(_isCodeBlock), m.Groups["page"].Value.Trim()));
 
-			return tt;
+			return result;
 		}
 	}
 
 	public class RenderConverter : ICodeConverter
 	{
+		private readonly bool _isCodeBlock;
+
+		public RenderConverter(bool isCodeBlock = false)
+		{
+			_isCodeBlock = isCodeBlock;
+		}
+
 		public string ConvertCodeBlock(string codeBlock)
 		{
 			var searchRegex = new Regex(@"Render\((?<page>.*?)\);", RegexOptions.Singleline | RegexOptions.Multiline);
-			var tt = searchRegex.Replace(codeBlock, m =>
-			{
-				var t = string.Format("Html.Render({0})", m.Groups["page"].Value.Trim());
-				return t;
-			});
-
-			return tt;
+			var result = searchRegex.Replace(codeBlock, m => string.Format("Html.Render({0})".AddAtPrefix(_isCodeBlock), m.Groups["page"].Value.Trim()));
+			return result;
 		}
 	}
 
@@ -103,7 +121,8 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 	{
 		public string ConvertCodeBlock(string codeBlock)
 		{
-			return codeBlock.Replace("ViewBase.ResourceRenderer.StylesheetTags(Require)", "Html.RenderStyleSheet()").Replace("ViewBase.ResourceRenderer.ScriptTags(Require)", "Html.RenderScripts()");
+			return codeBlock.Replace("ViewBase.ResourceRenderer.StylesheetTags(Require)", "Html.RenderStyleSheet()")
+				.Replace("ViewBase.ResourceRenderer.ScriptTags(Require)", "Html.RenderScripts()");
 		}
 	}
 
@@ -131,6 +150,15 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 		}
 	}
 
+	public static class StringExt
+{
+		public static string AddAtPrefix(this string str, bool condition)
+		{
+			if (condition)
+				return "@" + str;
 
+			return str;
+		}
+}
 
 }

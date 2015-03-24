@@ -20,7 +20,7 @@ namespace Telerik.RazorConverter.Razor.Converters
 
         public ExpressionBlockConverter(IRazorExpressionNodeFactory nodeFactory)
         {
-	        _converters = CodeCOnverters.converters;
+	        _converters = ExpressionCodeConverters.Converters;
             ExpressionNodeFactory = nodeFactory;
         }
 
@@ -32,6 +32,7 @@ namespace Telerik.RazorConverter.Razor.Converters
             expression = expression.Replace("ResolveUrl", "Url.Content");
             expression = RemoveHtmlEncode(expression);
             expression = WrapHtmlDecode(expression);
+
 			foreach (var codeConverter in _converters)
 			{
 				expression = codeConverter.ConvertCodeBlock(expression);

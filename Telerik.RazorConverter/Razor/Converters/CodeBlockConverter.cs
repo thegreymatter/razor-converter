@@ -20,7 +20,7 @@ namespace Telerik.RazorConverter.Razor.Converters
         public CodeBlockConverter(IRazorCodeNodeFactory nodeFactory)
         {
             CodeNodeFactory = nodeFactory;
-	        _converters = CodeCOnverters.converters;
+	        _converters = CodeBlockCodeConvertors.Converters;
         }
 
         public IList<IRazorNode> ConvertNode(IWebFormsNode node)

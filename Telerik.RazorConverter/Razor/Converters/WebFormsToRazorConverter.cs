@@ -26,10 +26,10 @@ namespace Telerik.RazorConverter.Razor.Converters
 	   
             var rootNode = new RazorNode();
 
-	        rootNode.Children.Add(new RazorDirectiveNode("using", "Ohio.Web.Config.X.Infrastructure"));
-			rootNode.Children.Add(new RazorTextNode("\r\n"));
-	        rootNode.Children.Add(new RazorDirectiveNode("using", "Ohio.Web.UI.Views.X"));
-			rootNode.Children.Add(new RazorTextNode("\r\n"));
+	        //rootNode.Children.Add(new RazorDirectiveNode("using", "Ohio.Web.Config.X.Infrastructure"));
+			//rootNode.Children.Add(new RazorTextNode("\r\n"));
+	        //rootNode.Children.Add(new RazorDirectiveNode("using", "Ohio.Web.UI.Views.X"));
+			//rootNode.Children.Add(new RazorTextNode("\r\n"));
 
             foreach (var srcNode in srcDoc.RootNode.Children)
             {
