@@ -58,7 +58,6 @@ namespace Telerik.RazorConverter.Razor.CodeConverters
 		}
 	}
 
-
 	public class FeatureControlConverter : ICodeConverter
 	{
 		public string ConvertCodeBlock(string codeBlock)

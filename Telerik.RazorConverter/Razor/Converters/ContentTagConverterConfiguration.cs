@@ -13,7 +13,7 @@
 
         public ContentTagConverterConfiguration()
         {
-            BodyContentPlaceHolderID = "MainContent";
+            BodyContentPlaceHolderID = "Body";
         }
     }
 }
