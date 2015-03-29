@@ -1,128 +1,134 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Build.Evaluation;
 
 namespace aspx2razor
 {
-    using System;
-    using System.ComponentModel.Composition;
-    using System.ComponentModel.Composition.Hosting;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using Telerik.RazorConverter;
-    using Telerik.RazorConverter.Razor.DOM;
+	using System;
+	using System.ComponentModel.Composition;
+	using System.ComponentModel.Composition.Hosting;
+	using System.IO;
+	using System.Linq;
+	using System.Text;
+	using Telerik.RazorConverter;
+	using Telerik.RazorConverter.Razor.DOM;
 
-    class Program
-    {
-        [Import]
-        private IWebFormsParser Parser
-        {
-            get;
-            set;
-        }
+	class Program
+	{
+		[Import]
+		private IWebFormsParser Parser
+		{
+			get;
+			set;
+		}
 
-        [Import]
-        private IWebFormsConverter<IRazorNode> Converter
-        {
-            get;
-            set;
-        }
+		[Import]
+		private IWebFormsConverter<IRazorNode> Converter
+		{
+			get;
+			set;
+		}
 
-        [Import]
-        private IRenderer<IRazorNode> Renderer
-        {
-            get;
-            set;
-        }
+		[Import]
+		private IRenderer<IRazorNode> Renderer
+		{
+			get;
+			set;
+		}
 
-        private static void Main(string[] args)
-        {
-            var p = new Program();
-            p.Run(args);
-        }
+		private static void Main(string[] args)
+		{
+			var p = new Program();
+			p.Run(args);
+		}
 
-        private Program()
-        {
-            var catalog = new AssemblyCatalog(typeof(IWebFormsParser).Assembly);
-            var container = new CompositionContainer(catalog);
-            container.ComposeParts(this);
-        }
+		private Program()
+		{
+			var catalog = new AssemblyCatalog(typeof(IWebFormsParser).Assembly);
+			var container = new CompositionContainer(catalog);
+			container.ComposeParts(this);
+		}
 
-        public void Run(string[] args)
-        {
-            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+		public void Run(string[] args)
+		{
+			var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            if (args.Length < 1)
-            {
-                DisplayUsage();
-                return;
-            }
+			if (args.Length < 1)
+			{
+				DisplayUsage();
+				return;
+			}
 
-            var outputDirectory = (args.Length >= 2 && !args[1].StartsWith("-")) ? args[1] : "";
-            var directoryHandler = new DirectoryHandler(args[0], outputDirectory);
-	        var Errors = new List<string>();
-            var recursive = args.Contains("-r", StringComparer.InvariantCultureIgnoreCase);
-            var files = directoryHandler.GetFiles(recursive);
-            foreach (var file in files)
-            {
-	            try
-	            {
-		            Console.WriteLine("Converting {0}", file);
+			var outputDirectory = (args.Length >= 2 && !args[1].StartsWith("-")) ? args[1] : "";
+			var directoryHandler = new DirectoryHandler(args[0], outputDirectory);
+			var Errors = new List<string>();
+			var recursive = args.Contains("-r", StringComparer.InvariantCultureIgnoreCase);
+			var files = directoryHandler.GetFiles(recursive);
 
-		            var webFormsPageSource = File.ReadAllText(file, Encoding.UTF8);
-		            var webFormsDocument = Parser.Parse(webFormsPageSource);
-		            var razorDom = Converter.Convert(webFormsDocument);
-		            var razorPage = Renderer.Render(razorDom);
+			foreach (var file in files)
+			{
+				try
+				{
+					Console.WriteLine("Converting {0}", file);
 
-		            var outputFileName = ReplaceExtension(directoryHandler.GetOutputFileName(file), ".cshtml");
-		            Console.WriteLine("Writing    {0}", outputFileName);
-		            EnsureDirectory(Path.GetDirectoryName(outputFileName));
-		            File.WriteAllText(outputFileName, razorPage, Encoding.UTF8);
+					var webFormsPageSource = File.ReadAllText(file, Encoding.UTF8);
+					var webFormsDocument = Parser.Parse(webFormsPageSource);
+					var razorDom = Converter.Convert(webFormsDocument);
+					var razorPage = Renderer.Render(razorDom);
 
-		            Console.WriteLine("Done\n");
-	            }
-	            catch (Exception e)
-	            {
-		            Console.ForegroundColor= ConsoleColor.Red;
-		            Console.WriteLine(e);
+					var outputFileName = ReplaceExtension(directoryHandler.GetOutputFileName(file), ".cshtml");
+					Console.WriteLine("Writing    {0}", outputFileName);
+					EnsureDirectory(Path.GetDirectoryName(outputFileName));
+					File.WriteAllText(outputFileName, razorPage, Encoding.UTF8);
+
+					Console.WriteLine("Done\n");
+				}
+				catch (Exception e)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine(e);
 					Console.ForegroundColor = ConsoleColor.White;
-					Errors.Add(file+":"+e.Message);
-					
-	            }
-            }
+					Errors.Add(file + ":" + e.Message);
 
-	        foreach (var error in Errors)
-	        {
+				}
+			}
+
+			foreach (var error in Errors)
+			{
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine(error);
 				Console.ForegroundColor = ConsoleColor.White;
-	        }
+			}
 
-            var elapsed = stopwatch.Elapsed;
-            Console.WriteLine();
-            Console.WriteLine("{0} files converted", files.Length);
-            Console.WriteLine("Elapsed: {0} seconds", elapsed.TotalSeconds);
-        }
+			var elapsed = stopwatch.Elapsed;
+			Console.WriteLine();
+			Console.WriteLine("{0} files converted", files.Length);
+			Console.WriteLine("Elapsed: {0} seconds", elapsed.TotalSeconds);
+		}
 
-        private static void DisplayUsage()
-        {
-            Console.WriteLine("Converts WebForms pages (.aspx, .ascx) into a Razor views (.cshtml)");
-            Console.WriteLine("Usage: aspx2razor <input file / wildcard> [output-directory] [options]");
-            Console.WriteLine("Options available:\r");
-            Console.WriteLine("-r: Convert directories and their contents recursively");
-        }
+		private static void DisplayUsage()
+		{
+			Console.WriteLine("Converts WebForms pages (.aspx, .ascx) into a Razor views (.cshtml)");
+			Console.WriteLine("Usage: aspx2razor <input file / wildcard> [output-directory] [options]");
+			Console.WriteLine("Options available:\r");
+			Console.WriteLine("-r: Convert directories and their contents recursively");
+		}
 
-        private static void EnsureDirectory(string directory)
-        {
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-        }
+		private static void EnsureDirectory(string directory)
+		{
+			if (!Directory.Exists(directory))
+			{
+				Directory.CreateDirectory(directory);
+			}
+		}
 
-        private static string ReplaceExtension(string fileName, string newExtension)
-        {
-            var targetFolder = Path.GetDirectoryName(fileName);
-            return Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(fileName) + newExtension);
-        }
-    }
+		private static string ReplaceExtension(string fileName, string newExtension)
+		{
+			var targetFolder = Path.GetDirectoryName(fileName);
+			var extension = Path.GetExtension(fileName);
+			if (extension == "ascx")
+				return Path.Combine(targetFolder, "_" + Path.GetFileNameWithoutExtension(fileName) + newExtension);
+
+			return Path.Combine(targetFolder, Path.GetFileNameWithoutExtension(fileName) + newExtension);
+		}
+	}
 }
